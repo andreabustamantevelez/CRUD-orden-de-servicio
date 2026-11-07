@@ -15,13 +15,11 @@ class OrdenServicioController extends Controller
     // ============================================================
     // R: LISTAR  ->  responsable: Nikol (rama feature/listado)
     // ============================================================
-     public function index()
+    public function index()
     {
-        $ordenes = OrdenServicio::with(['cliente', 'usuario'])
-            ->orderByDesc('created_at')
-            ->get();
-
-        return view('ordenes.index', compact('ordenes'));
+        // TODO (Nikol): consultar las órdenes con cliente y usuario
+        // y enviarlas a la vista ordenes.index
+        return view('ordenes.index');
     }
 
 
@@ -30,42 +28,14 @@ class OrdenServicioController extends Controller
     // ============================================================
     public function create()
     {
-        return view('ordenes.create', [
-            'clientes' => Cliente::orderBy('nombre')->get(),
-            'usuarios' => Usuario::orderBy('username')->get(),
-            'prioridades' => $this->prioridades,
-        ]);
+        // TODO (Juan): enviar clientes, usuarios y prioridades a la vista
+        return view('ordenes.create');
     }
 
     public function store(Request $request)
     {
-        $datos = $request->validate([
-            'cliente_id' => 'required|exists:cliente,id_cliente',
-            'usuario_id' => 'required|exists:usuario,id_usuario',
-            'codigo_orden' => 'required|string|max:50|unique:orden_de_servicio,codigo_orden',
-            'descripcion' => 'required|string',
-            'tipo_servicio' => 'required|string|max:50',
-            'prioridad' => 'required|in:' . implode(',', $this->prioridades),
-        ], [
-            'required' => 'El campo :attribute es obligatorio.',
-            'exists' => 'El :attribute seleccionado no es válido.',
-            'unique' => 'Ese código de orden ya existe.',
-            'max' => 'El campo :attribute no puede superar :max caracteres.',
-            'in' => 'La prioridad seleccionada no es válida.',
-        ], [
-            'cliente_id' => 'cliente',
-            'usuario_id' => 'usuario',
-            'codigo_orden' => 'código de la orden',
-            'descripcion' => 'descripción',
-            'tipo_servicio' => 'tipo de servicio',
-            'prioridad' => 'prioridad',
-        ]);
-
-        // estado queda en 'Pendiente' por defecto (lo define la base de datos)
-        OrdenServicio::create($datos);
-
-        return redirect()->route('ordenes.index')
-            ->with('success', 'Orden creada correctamente.');
+        // TODO (Juan): validar y guardar la orden
+        return redirect()->route('ordenes.index');
     }
 
 
@@ -74,13 +44,28 @@ class OrdenServicioController extends Controller
     // ============================================================
     public function edit(OrdenServicio $orden)
     {
-        // TODO (Vale): cargar cliente y usuario y enviar todo a la vista
-        return view('ordenes.edit');
+        $orden->load(['cliente', 'usuario']);
+
+        return view('ordenes.edit', [
+            'orden' => $orden,
+            'prioridades' => $this->prioridades,
+            'estados' => $this->estados,
+        ]);
     }
 
     public function update(Request $request, OrdenServicio $orden)
     {
-        // TODO (Vale): validar y actualizar solo los 4 campos editables
-        return redirect()->route('ordenes.index');
+        // Solo se aceptan los 4 campos editables; los demás no se tocan
+        $datos = $request->validate([
+            'tipo_servicio' => 'required|string|max:50',
+            'prioridad' => 'required|in:' . implode(',', $this->prioridades),
+            'estado' => 'required|in:' . implode(',', $this->estados),
+            'fecha_cierre_estimada' => 'nullable|date',
+        ]);
+
+        $orden->update($datos);
+
+        return redirect()->route('ordenes.index')
+            ->with('success', 'Orden actualizada correctamente.');
     }
 }
