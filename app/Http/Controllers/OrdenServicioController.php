@@ -15,11 +15,13 @@ class OrdenServicioController extends Controller
     // ============================================================
     // R: LISTAR  ->  responsable: Nikol (rama feature/listado)
     // ============================================================
-    public function index()
+     public function index()
     {
-        // TODO (Nikol): consultar las órdenes con cliente y usuario
-        // y enviarlas a la vista ordenes.index
-        return view('ordenes.index');
+        $ordenes = OrdenServicio::with(['cliente', 'usuario'])
+            ->orderByDesc('created_at')
+            ->get();
+
+        return view('ordenes.index', compact('ordenes'));
     }
 
 
