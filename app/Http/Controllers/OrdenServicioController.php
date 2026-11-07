@@ -30,42 +30,14 @@ class OrdenServicioController extends Controller
     // ============================================================
     public function create()
     {
-        return view('ordenes.create', [
-            'clientes' => Cliente::orderBy('nombre')->get(),
-            'usuarios' => Usuario::orderBy('username')->get(),
-            'prioridades' => $this->prioridades,
-        ]);
+        // TODO (Juan): enviar clientes, usuarios y prioridades a la vista
+        return view('ordenes.create');
     }
 
     public function store(Request $request)
     {
-        $datos = $request->validate([
-            'cliente_id' => 'required|exists:cliente,id_cliente',
-            'usuario_id' => 'required|exists:usuario,id_usuario',
-            'codigo_orden' => 'required|string|max:50|unique:orden_de_servicio,codigo_orden',
-            'descripcion' => 'required|string',
-            'tipo_servicio' => 'required|string|max:50',
-            'prioridad' => 'required|in:' . implode(',', $this->prioridades),
-        ], [
-            'required' => 'El campo :attribute es obligatorio.',
-            'exists' => 'El :attribute seleccionado no es válido.',
-            'unique' => 'Ese código de orden ya existe.',
-            'max' => 'El campo :attribute no puede superar :max caracteres.',
-            'in' => 'La prioridad seleccionada no es válida.',
-        ], [
-            'cliente_id' => 'cliente',
-            'usuario_id' => 'usuario',
-            'codigo_orden' => 'código de la orden',
-            'descripcion' => 'descripción',
-            'tipo_servicio' => 'tipo de servicio',
-            'prioridad' => 'prioridad',
-        ]);
-
-        // estado queda en 'Pendiente' por defecto (lo define la base de datos)
-        OrdenServicio::create($datos);
-
-        return redirect()->route('ordenes.index')
-            ->with('success', 'Orden creada correctamente.');
+        // TODO (Juan): validar y guardar la orden
+        return redirect()->route('ordenes.index');
     }
 
 
